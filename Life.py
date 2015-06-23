@@ -1,12 +1,11 @@
 from random import randint
-
 from os import system
 from time import sleep
 
 
 def randomNo():
-  rn = randint(0, 1)
-  return rn
+	rn = randint(0, 1)
+	return rn
 
 def RandomGrid(ROWS, COLS):
 	Grid = {}
@@ -72,7 +71,6 @@ def Neighbours(Grid, ROWS, COLS):
 				NGrid[r][c] = NCount
 				NCount = 0
 			
-
 			#Bottom right corner
 			elif(r == ROWS-1 and c == COLS-1):
 			
@@ -95,7 +93,6 @@ def Neighbours(Grid, ROWS, COLS):
 				NGrid[r][c] = NCount
 				NCount = 0
 				
-			
 			#Bottom Row checks
 			elif(r == ROWS-1 and (c != 0 or c != COLS)):
 			
@@ -150,9 +147,9 @@ def Neighbours(Grid, ROWS, COLS):
 
 def iterateGeneration(Grid, ROWS, COLS):
 	NGrid = Neighbours(Grid, ROWS, COLS)
-	for r in Grid:
-		for c in Grid:
-			if(Grid[r][c] == 1 and (NGrid[r][c] == 1 or NGrid[r][c] == 1)):
+	for r in range(0,ROWS):
+		for c in  range(0,COLS):
+			if(Grid[r][c] == 1 and (NGrid[r][c] == 0 or NGrid[r][c] == 1)):
 				#Loneliness: Cell dies
 				Grid[r][c] = 0
 		   #elif(Grid[r][c] == 1 and (NGrid[r][c] == 2 or NGrid[r][c] == 3)):	#Nothing happens
@@ -163,15 +160,32 @@ def iterateGeneration(Grid, ROWS, COLS):
 				#Overcrowding: Cell dies
 				Grid[r][c] = 0
 
+ROWS = -1
+COLS = -1
+TIMES = -1
+speed_choice = ''
 				
-ROWS = 20
-COLS = 20
+while ROWS < 0:
+		ROWS = int(input("Enter the number of rows: "))
+
+while COLS < 0:
+		COLS = int(input("Enter the number of columns: "))
+
+while TIMES < 0:
+		TIMES = int(input("Enter the number of generations: "))
+
+speeds = {'Slow' : 1.2, 'Fast' : .7, 'Hyper' : .1}
+while speed_choice != 'Slow' and  speed_choice != 'Fast' and  speed_choice != 'Hyper':
+	for x in speeds: 
+		print (x)
+	speed_choice = str(raw_input("Choose a speed: "))
+
 rGrid =	RandomGrid(ROWS, COLS)
 
-for times in range(0, 100):
+for times in range(0, TIMES):
 	iterateGeneration(rGrid,ROWS, COLS)
 	PrintGrid(rGrid,ROWS, COLS)
-	sleep(.7)
+	sleep(speeds[speed_choice])
 	system('cls')
 
 	
