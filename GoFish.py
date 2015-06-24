@@ -17,7 +17,6 @@ class Deck():
 			sum += len(self.cards[d]) 
 			
 		print "Cards left: ", sum
-		print
 	
 	def randomCard(self):
 		x = randint(0,3)
@@ -36,21 +35,25 @@ class Deck():
 		print
 	
 	def showHand(self):
+			
+		spacing = 8
 		for h in range(0, len(self.hand)):
+			print '-' * spacing
 			if self.hand[h] == 1:
-				print 'A',
+				print ' ' * (spacing/3), 'A'
 			elif self.hand[h] == 11:
-				print 'J',
+				print ' ' * (spacing/3), 'J'
 			elif self.hand[h] == 12:
-				print 'Q',
+				print ' ' * (spacing/3), 'Q'
 			elif self.hand[h] == 13:
-				print 'K',
+				print ' ' * (spacing/3), 'K'
 			else:
-				print self.hand[h],
+				print ' ' * (spacing/3), self.hand[h]
+		print '-' * spacing
 		print '\n'
 	
 	def popCard(self, x, y):
-		print "Popping: ", x, ':',self.cards[x][y]
+		#print "Popping: ", x, ':',self.cards[x][y]
 		self.cards[x].pop(y)
 		
 		
