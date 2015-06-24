@@ -35,23 +35,48 @@ class Deck():
 		print
 	
 	def showHand(self):
-			
-		spacing = 8
-		for h in range(0, len(self.hand)):
-			print '-' * spacing
-			if self.hand[h] == 1:
-				print ' ' * (spacing/3), 'A'
-			elif self.hand[h] == 11:
-				print ' ' * (spacing/3), 'J'
-			elif self.hand[h] == 12:
-				print ' ' * (spacing/3), 'Q'
-			elif self.hand[h] == 13:
-				print ' ' * (spacing/3), 'K'
+		visual = []
+		#Create visual cards
+		for v in range(0, len(self.hand)):
+			if v == 0:
+				visual.append('-' * 7)
+				visual.append('|  ' + '   |')
+				visual.append('|  ' + '   |')
+				if self.hand[v] == 10:
+					visual.append('| ' + str(self.hand[v]) + '  |')
+				elif self.hand[v] == 11:
+					visual.append('|  ' + 'J' + '  |')
+				elif self.hand[v] == 12:
+					visual.append('|  ' + 'Q' + '  |')
+				elif self.hand[v] == 13:
+					visual.append('|  ' + 'K' + '  |')
+				else:
+					visual.append('|  ' + str(self.hand[v]) + '  |')
+				visual.append('|  ' + '   |')
+				visual.append('|  ' + '   |')
+				visual.append('-' * 7)
 			else:
-				print ' ' * (spacing/3), self.hand[h]
-		print '-' * spacing
-		print '\n'
-	
+				visual[0] += (' -------')
+				visual[1] += (' |  ' + '   |')
+				visual[2] += (' |  ' + '   |')
+				if self.hand[v] == 10:
+					visual[3] += (' | ' + str(self.hand[v]) + '  |')
+				elif self.hand[v] == 11:
+					visual[3] += (' |  ' + 'J' + '  |')
+				elif self.hand[v] == 12:
+					visual[3] += (' |  ' + 'Q' + '  |')
+				elif self.hand[v] == 13:
+					visual[3] += (' |  ' + 'K' + '  |')
+				else:
+					visual[3] += (' |  ' + str(self.hand[v]) + '  |')
+				visual[4] += (' |  ' + '   |')
+				visual[5] += (' |  ' + '   |')
+				visual[6] += (' -------')
+
+		for v in range(0, 7):
+			print visual[v]
+		print
+
 	def popCard(self, x, y):
 		#print "Popping: ", x, ':',self.cards[x][y]
 		self.cards[x].pop(y)
