@@ -104,29 +104,28 @@ player1.getHand()
 player1.showHand()
 player1.showDeck()
 
+#Copies cards over from player1 and gives empty hand
 player2 = Deck(player1)
-
-print 'Player 2: ',
-player2.getHand()
-player2.showHand()
-player2.showDeck()
-
-#Synchronize Decks after getHand()
-player1.cards = player2.cards
-
 player3 = Deck(player1)
-
-print 'Player 3: ',
-player3.getHand()
-player3.showHand()
-player3.showDeck()
-
-#Synchronize Decks after getHand()
-player1.cards = player3.cards
-
 player4 = Deck(player1)
 
-print 'Player 4: ',
-player4.getHand()
-player4.showHand()
-player4.showDeck()
+
+players = []
+players.append(player2)
+players.append(player3)
+players.append(player4)
+
+prevPlayer = player1
+count = 2
+for i in players:
+	print 'Player', count, ':'
+	i.getHand()
+	i.showHand()
+	i.showDeck()
+	i.cards = prevPlayer.cards
+	prevPlayer = i
+	count += 1
+
+#Synchronize Decks after getHand()
+#player1.cards = player2.cards
+
