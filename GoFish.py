@@ -11,8 +11,12 @@ class Deck():
 			self.cards.append(range(1,14))
 			
 	def showDeck(self):
+		sum = 0
 		for d in range(4):
 			print self.cards[d]
+			sum += len(self.cards[d]) 
+			
+		print "Cards left: ", sum
 		print
 	
 	def randomCard(self):
