@@ -176,8 +176,8 @@ while len(players[0].hand) != 0 and len(players[1].hand) and len(players[2].hand
 		i.getHand()
 		i.printNumCards()
 		i.showHand()
-		choice = raw_input('Player ' + str(i.playerNum) + ', pick a card: ')
-		i.pick(choice)
+		select = raw_input('Player ' + str(i.playerNum) + ', pick a card: ')
+		i.pick(select)
 		system('cls')
 	print 'End of round ' + str(round) + '.'
 	score(players)
