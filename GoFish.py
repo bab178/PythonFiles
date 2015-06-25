@@ -10,7 +10,8 @@ from time import sleep
 
 class Deck(object):
 	
-	def __init__(self, other = None):
+	def __init__(self, playerNum, other = None):
+		self.playerNum = playerNum
 		self.cards = []
 		self.hand = []
 		self.pairs = 0
@@ -18,15 +19,15 @@ class Deck(object):
 			self.cards = other.cards
 		else:
 			#Get Deck
-			for d in range(0,4):
+			for suits in range(0,4):
 				self.cards.append(['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'])
 				
 	def showDeck(self):
 		if len(self.cards) != 0:
-			for d in range(4):
-				print self.cards[d]
+			for suit in range(4):
+				print self.cards[suit]
 		
-		print "Cards left: ", self.numCards()
+		self.printNumCards()
 
 	def numCards(self):
 		sum = 0
@@ -35,23 +36,27 @@ class Deck(object):
 				sum += len(self.cards[d]) 
 		return sum
 		
+	def printNumCards(self):
+		print "Cards left: ", self.numCards()
+		
 	def numCardsInHand(self):
 		return len(self.hand)
 	
 	def randomCard(self):
+		coords = []
 		x = randint(0, len(self.cards)-1)
-		y = choice(self.cards[x])
-		coords = [x,y]
+		i = choice(self.cards[x])
+		y = self.cards[x].index(i)
+		coords.append(x)
+		coords.append(y)
 		return coords
 		
 	def getHand(self):
-		if self.numCards() >= 5 and len(self.hand) < 5:
+		if self.numCards() >= 1 and len(self.hand) < 5:
 			for h in range(0, 5 - len(self.hand)):
 				coords = self.randomCard()
-				x = coords[0]
-				y = self.cards[x].index(coords[1])
-				self.hand.append(self.cards[x][y])
-				self.popCard(x, coords[1])
+				self.hand.append(self.cards[coords[0]][coords[1]])
+				self.popCard(coords[0], coords[1])
 	
 	def showHand(self):
 		visual = []
@@ -87,11 +92,13 @@ class Deck(object):
 		if len(self.hand) != 0:
 			for v in range(0, 7):
 				print visual[v]
+		else:
+			print 'Player', self.playerNum, "'s hand is empty"
 		print
 		
 	def popCard(self, x, y):
 		#print "Popping: ", x, ':',self.cards[x][y]
-		del self.cards[x][self.cards[x].index(y)]
+		del self.cards[x][y]
 			
 	def pick(self, card):
 		if card.upper() not in str(self.hand):
@@ -135,19 +142,16 @@ def score(players):
 
 #START
 system('cls')
-player1 = Deck()
+player1 = Deck(1)
+player2 = Deck(2)
+player3 = Deck(3)
+player4 = Deck(4)
 
-print 'Player 1: '
-player1.getHand()
+#print 'Player', player1.playerNum, ': '
+#player1.getHand()
 #player1.checkHand()
-player1.showHand()
+#player1.showHand()
 #player1.showDeck()
-
-#Copies cards over from player1 and gives empty hand
-player2 = Deck()
-player3 = Deck()
-player4 = Deck()
-
 
 players = []
 players.append(player1)
@@ -156,20 +160,27 @@ players.append(player3)
 players.append(player4)
 
 prevPlayer = player1
-count = 1
+
 for i in players:
-	if i == 0:
-		continue
-	#print 'Player', count, ':'
-	i.getHand()
-	#i.showHand()
-	#i.showDeck()
 	i.cards = prevPlayer.cards
 	prevPlayer = i
-	count += 1
-print 'All', count - 1, 'players have drawn their hands.'
+	i.getHand()
+	
+print 'All', len(players), 'players have drawn their hands.'
+round = 1
+
+while len(players[0].hand) != 0 and len(players[1].hand) and len(players[2].hand) and len(players[3].hand):
+	for i in players:
+		i.cards = prevPlayer.cards
+		prevPlayer = i
+		i.getHand()
+		i.printNumCards()
+		i.showHand()
+		choice = raw_input('Player ' + str(i.playerNum) + ', pick a card: ')
+		i.pick(choice)
+		system('cls')
+	print 'End of round ' + str(round) + '.'
+	score(players)
+	round += 1
+print 'Game Over'
 score(players)
-while player1.numCardsInHand() > 0:
-	choice = raw_input('Pick a card: ')
-	player1.pick(choice)
-	player1.showHand()
