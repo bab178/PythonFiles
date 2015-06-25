@@ -108,18 +108,23 @@ class Deck(object):
 			self.hand.pop(self.hand.index(int(card)))
 		else:
 			self.hand.pop(self.hand.index(card.upper()))
-	#BROKEN		
-	# def checkHand(self):
-		# ind = []
-		# card = self.hand[0]
-		# if card not in self.hand:
-			# return
-		# for i in self.hand:
-			# if i == card and self.hand.index(i) != self.hand.index(card):
-				# ind.append(card)
-			# card = i
-		# if len(ind) > 1:
-			# print "Pair(s) found", len(ind)/2
+
+	def checkHand(self):
+		num = 0
+		toPop = []
+		for i in range(len(self.hand)):
+			for j in range(len(self.hand)):
+				if self.hand[i] == self.hand[j] and i != j:
+					num += 1
+					toPop.append(i)
+					toPop.append(j)
+		
+		print toPop
+		if num > 0:
+			for i in range(0, len(toPop)/2):
+				if i % 2 == 0:
+					print 'Pair of ' + str(self.hand[toPop[i]]) + "'s found!"
+			self.pairs += num/2
 	
 	def checkOther(self, card, other = None):
 		ind = []
@@ -175,6 +180,7 @@ while len(players[0].hand) != 0 and len(players[1].hand) and len(players[2].hand
 		prevPlayer = i
 		i.getHand()
 		i.printNumCards()
+		i.checkHand()
 		i.showHand()
 		select = raw_input('Player ' + str(i.playerNum) + ', pick a card: ')
 		i.pick(select)
