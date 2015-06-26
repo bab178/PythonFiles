@@ -1,9 +1,8 @@
 #*****************************************************
 #	Author: Blake Bordovsky
+#	Date: 6/24/2015
 #	GoFish.py
 #   Version: 1.0
-#
-#   Known bug: 3 of a Kind breaks pairs
 #*****************************************************
 from random import choice
 from random import randint
@@ -58,7 +57,8 @@ class Deck(object):
 			for h in range(0, 5 - len(self.hand)):
 				coords = self.randomCard()
 				self.hand.append(self.cards[coords[0]][coords[1]])
-				self.popCard(coords[0], coords[1])
+				#Pop card from deck
+				del self.cards[coords[0]][coords[1]]
 	
 	def showHand(self):
 		visual = []
@@ -97,46 +97,39 @@ class Deck(object):
 		else:
 			print 'Player', self.playerNum, "'s hand is empty"
 		print
-		
-	def popCard(self, x, y):
-		#print "Popping: ", x, ':',self.cards[x][y]
-		del self.cards[x][y]
 			
 	def pick(self, card):
 		if card.upper() not in str(self.hand):
 			print "Player " + str(self.playerNum) + " mutters to themselves: I don't have any of those, better try a different card."
 			return False
 		return True
-		# if card.upper() != 'K' and card.upper() != 'Q' and card.upper() != 'J' and card.upper() != 'A':
-			# self.hand.pop(self.hand.index(int(card)))
-			# return True
-		# else:
-			# self.hand.pop(self.hand.index(card.upper()))
-			# return True
 			
-	def checkHand(self):
+	def findPairs(self):
 		num = 0
-		toPop = []
+		uniques = []
 		for i in range(len(self.hand)):
 			for j in range(len(self.hand)):
 				if self.hand[i] == self.hand[j] and i != j:
 					num += 1
-					toPop.append(self.hand[i])
+					if self.hand[i] not in uniques:
+						uniques.append(self.hand[i])
 
-		#print toPop
 		if num > 0:
-			for i in range(0, len(toPop)/2):
+			for i in range(0, len(uniques)):
 					print
-					print 'Pair of ' + str(toPop[i]) + "'s found!"
+					print 'Pair of ' + str(uniques[i]) + "'s found!"
 			self.pairs += num/2
 			self.showHand()
 			print 'Removing pairs from hand.'
-			for p in range(len(toPop)):
-				del self.hand[self.hand.index(toPop[p])]
+			for p in range(len(uniques)):
+				del self.hand[self.hand.index(uniques[p])]
+				del self.hand[self.hand.index(uniques[p])]
 				
-	def checkOther(self, card, other = None):
+	def goFish(self, card, other = None):
+		print 'goFish'
 		toPop = []
 		for i in self.hand:
+			 print i, '==', card
 			 if i == card:
 				toPop.append(self.hand.index(card))
 		if len(toPop) > 1:
@@ -144,38 +137,12 @@ class Deck(object):
 			self.hand.append(other.hand.index[other.hand[toPop[0]]])
 		else:
 			print
-			print 'Player ', other.playerNum, "says: Go Fish."
+			print 'Player ' + other.playerNum + " says: Go Fish."
 	
 #*********************************************************************
-#END Deck() class
+#END class Deck
 #*********************************************************************
 
-def score(players):
-	count = 1
-	print
-	print '-------Scoreboard-------\n'
-	for p in players:
-		print 'Player', count, 'Score:', p.pairs, '\n'
-		count += 1
-	print '------------------------\n'
-	sleep(5)
-
-def gameSeq(player):
-	player.getHand()
-	player.printNumCards()
-	player.checkHand()
-	player.showHand()
-
-def runInput(player, players):
-	flag = False
-	selectedPlayer = 0
-	while(selectedPlayer not in range(1,4) and (not flag)):
-		selectedPlayer = input('Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: ")
-		select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any ___'s?")
-		flag = player.pick(select)
-	if(selectedPlayer in range(1,4)):
-		player.checkOther(select, players[selectedPlayer - 1])
-	
 def startGame(prevPlayer):
 	numPlayers = 1
 	players = []
@@ -183,6 +150,7 @@ def startGame(prevPlayer):
 	while numPlayers <= 1:
 		#numPlayers = input('How many players do you want? (2-4)')
 		print 'How many players do you want? (2)'
+		#hardcoded
 		numPlayers = 2
 	
 	if numPlayers == 2:
@@ -203,17 +171,56 @@ def startGame(prevPlayer):
 		prevPlayer = i
 		i.getHand()
 	
-	return [players, numPlayers]
-	
+	return players
+
+
+def gameSeq(player):
+	player.getHand()
+	player.printNumCards()
+	player.findPairs()
+	player.showHand()
+
+def runInput(player, players):
+	flag = False
+	#hardcoded
+	#selectedPlayer = 0
+	selectedPlayer = 2
+	while(selectedPlayer not in range(1,4)) and (not flag):
+		#selectedPlayer = input('Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: ")
+		print 'Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: (2)"
+		select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any ___'s?")
+		flag = player.pick(select)
+		if(selectedPlayer in range(1,4)):
+			player.goFish(select, players[selectedPlayer - 1])
+
 def checkEnd(players):
+	sum = 0
 	for p in players:
-		sum = len(p.hand)
+		sum += p.numCardsInHand()
 	if sum == 0:
 		return True
 	else:
 		return False
+		
+def score(players):
+	count = 1
+	print
+	print '-------Scoreboard-------\n'
+	for p in players:
+		print 'Player', count, 'Score:', p.pairs, '\n'
+		count += 1
+	print '------------------------\n'
+	sleep(5)
+
 #START
+
+#Mac/Linux
+#system('clear')
+
+#Windows
 system('cls')
+
+#		  Deck(playerNum)
 player1 = Deck(1)
 player2 = Deck(2)
 player3 = Deck(3)
@@ -221,10 +228,7 @@ player4 = Deck(4)
 
 prevPlayer = player1
 
-startResults = startGame(prevPlayer)
-
-players = startResults[0]
-indexes = range(0, startResults[1])
+players = startGame(prevPlayer)
 
 gameOver = False
 
@@ -236,7 +240,7 @@ while not gameOver:
 		prevPlayer = i
 		gameSeq(i)
 		runInput(i, players)
-		sleep(2)
+		sleep(3)
 		system('cls')
 	print 'End of round ' + str(round) + '.'
 	gameOver = checkEnd(players)
