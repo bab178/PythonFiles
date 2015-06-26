@@ -133,23 +133,27 @@ class Deck(object):
 		#You have it and Admit it
 		if(card.lower() == 'yes' or card.lower() == 'ye' or card.lower() == 'yeah' or card.lower() == 'yar' or card.lower() == 'y') and (self.playerNum != 1) and (maybe in other.hand):
 			print 'Player ' + str(other.playerNum) + " says: Darn you found my " + str(maybe) + "!"
+			self.hand.append(maybe)
 			del other.hand[other.hand.index(maybe)]
 			self.findPairs()
 		#You Don't have it and Lie
 		elif(card.lower() == 'yes' or card.lower() == 'ye' or card.lower() == 'yeah' or card.lower() == 'yar' or card.lower() == 'y') and (self.playerNum != 1) and (not(maybe in other.hand)):
 			print 'Player ' + str(other.playerNum) + ' LIED!!! -2 points!'
 			other.pairs -= 2
+			self.hand.append(maybe)
 			del other.hand[other.hand.index(maybe)]
 			self.findPairs()
 		#You have it and Lie
 		elif(card.lower() != 'yes' and card.lower() != 'ye' and card.lower() != 'yeah' and card.lower() != 'yar' and card.lower() != 'y') and (self.playerNum != 1) and (maybe in other.hand):
 			print 'Player ' + str(other.playerNum) + ' LIED!!! -2 points!'
 			other.pairs -= 2
+			self.hand.append(maybe)
 			del other.hand[other.hand.index(maybe)]
 			self.findPairs()
 		else:
 			print 'Player ' + str(other.playerNum) + " says: Go Fish!"
-			
+		sleep(10)
+		
 	def goFish(self, card, other = None):
 		foundOne = False
 		for i in other.hand:
