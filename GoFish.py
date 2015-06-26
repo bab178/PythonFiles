@@ -121,7 +121,7 @@ class Deck(object):
 		if num > 0:
 			for i in range(0, len(uniques)):
 					print
-					print 'Pair of ' + str(uniques[i]) + "'s found!"
+					print 'Player', str(self.playerNum), 'found a pair of ' + str(uniques[i]) + "'s!"
 			self.pairs += num/2
 			if self.playerNum == 1:
 				self.showHand()
@@ -129,22 +129,26 @@ class Deck(object):
 			for p in range(len(uniques)):
 				del self.hand[self.hand.index(uniques[p])]
 				del self.hand[self.hand.index(uniques[p])]
-		print 'Player', str(self.playerNum) + "'s score is: ", self.pairs
+		print 'Player', str(self.playerNum) + "'s score is:      ", str(self.pairs) + '.'
 				
+	def aiFish(self, card, maybe, other = None):
+		if(card.lower() == 'yes' or card.lower() == 'ye' or card.lower() == 'yeah' or card.lower() == 'yar') and (self.playerNum != 1) and (maybe in other.hand):
+			print 'Player ' + str(other.playerNum) + " says: Darn you found my " + maybe + "!"
+		elif(card.lower() == 'yes' or card.lower() == 'ye' or card.lower() == 'yeah' or card.lower() == 'yar') and (self.playerNum != 1) and (not(maybe in other.hand)):
+			print 'Player ' + str(other.playerNum) + ' LIED!!! -2 points!'
+			other.pairs -= 2
+		else:
+			print 'Player ' + str(other.playerNum) + " says: Go Fish!"
+			
 	def goFish(self, card, other = None):
-		#pairs = []
 		foundOne = False
 		for i in other.hand:
 			if i == card:
 				system('cls')
 				foundOne = True
-				#pairs.append(card)
 				print 'Player ' + str(other.playerNum) + " says: You got my ", card, "!"
 				self.hand.append(card)
-				#print 'Match'
-				#print other.hand
 				del other.hand[other.hand.index(card)]
-				#print other.hand
 				self.findPairs()
 				self.showHand()
 				print "Next player's turn..."
@@ -203,24 +207,31 @@ def runInput(player, players):
 	while(selectedPlayer not in range(1,4)) or (not flag):
 		#selectedPlayer = input('Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: ")
 		print 'Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: (2) "
-		select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any ___'s? ")
+		select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any _'s? ")
 		flag = player.pick(select)
 		if(selectedPlayer in range(1,4)):
 			player.goFish(select, players[selectedPlayer - 1])
+			sleep(2)
 			
 def runAI(player, players):
 	flag = False
 	selectedPlayer = player.playerNum
 	available = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K']
+	#harder player.aiPick()
 	otherPlayers = players
 	
-	while selectedPlayer != player.playerNum:
+	while selectedPlayer == player.playerNum:
 		selectedPlayer = choice(otherPlayers).playerNum
-	select = choice(available)
+	maybe = choice(available)
+	
 	print 'Player ' + str(player.playerNum) + " says: Hey Player ", str(selectedPlayer) +'! '
-	select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any " + str(player.aiPick()) + "'s? ")
-	player.goFish(select, players[selectedPlayer - 1])
-
+	print 'Your Hand:'
+	players[0].showHand()
+	select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any " + str(maybe) + "'s? ")
+	
+	player.aiFish(select, maybe, players[selectedPlayer - 1])
+	sleep(2)
+	
 def checkEnd(players):
 	sum = 0
 	for p in players:
@@ -271,7 +282,6 @@ while not gameOver:
 			runInput(i, players)
 		else:
 			runAI(i, players)
-		sleep(3)
 		system('cls')
 	print 'End of round ' + str(round) + '.'
 	gameOver = checkEnd(players)
@@ -279,3 +289,4 @@ while not gameOver:
 	round += 1
 print 'Game Over'
 score(players)
+print max(players.playerNum), 'wins!'
