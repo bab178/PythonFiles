@@ -120,24 +120,27 @@ class Deck(object):
 					print 'Pair of ' + str(uniques[i]) + "'s found!"
 			self.pairs += num/2
 			self.showHand()
-			print 'Removing pairs from hand.'
+			print 'You remove them from your hand and gain a point for each pair.'
 			for p in range(len(uniques)):
 				del self.hand[self.hand.index(uniques[p])]
 				del self.hand[self.hand.index(uniques[p])]
 				
 	def goFish(self, card, other = None):
-		print 'goFish'
-		toPop = []
-		for i in self.hand:
-			 print i, '==', card
-			 if i == card:
-				toPop.append(self.hand.index(card))
-		if len(toPop) > 1:
-			print other.playerNum, "says: You got my ", toPop[0], "'s!"
-			self.hand.append(other.hand.index[other.hand[toPop[0]]])
-		else:
-			print
-			print 'Player ' + other.playerNum + " says: Go Fish."
+		#pairs = []
+		for i in other.hand:
+			if i == card:
+				#pairs.append(card)
+				print other.playerNum, "says: You got my ", card, "!"
+				self.hand.append(other.hand.index(card))
+				#print 'Match'
+				#print other.hand
+				del other.hand[other.hand.index(card)]
+				#print other.hand
+	
+				self.showHand()
+		
+		print
+		print 'Player ' + str(other.playerNum) + " says: Go Fish."
 	
 #*********************************************************************
 #END class Deck
@@ -185,7 +188,7 @@ def runInput(player, players):
 	#hardcoded
 	#selectedPlayer = 0
 	selectedPlayer = 2
-	while(selectedPlayer not in range(1,4)) and (not flag):
+	while(selectedPlayer not in range(1,4)) or (not flag):
 		#selectedPlayer = input('Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: ")
 		print 'Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: (2)"
 		select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any ___'s?")
