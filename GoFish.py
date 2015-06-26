@@ -152,7 +152,6 @@ class Deck(object):
 			self.findPairs()
 		else:
 			print 'Player ' + str(other.playerNum) + " says: Go Fish!"
-		sleep(10)
 		
 	def goFish(self, card, other = None):
 		foundOne = False
