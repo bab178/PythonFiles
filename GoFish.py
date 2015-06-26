@@ -104,6 +104,10 @@ class Deck(object):
 			return False
 		return True
 			
+	def aiPick(self):
+		return choice(self.hand)
+	
+	
 	def findPairs(self):
 		num = 0
 		uniques = []
@@ -119,28 +123,35 @@ class Deck(object):
 					print
 					print 'Pair of ' + str(uniques[i]) + "'s found!"
 			self.pairs += num/2
-			self.showHand()
-			print 'You remove them from your hand and gain a point for each pair.'
+			if self.playerNum == 1:
+				self.showHand()
+				print 'You remove them from your hand and gain a point for each pair.'
 			for p in range(len(uniques)):
 				del self.hand[self.hand.index(uniques[p])]
 				del self.hand[self.hand.index(uniques[p])]
+		print 'Player', str(self.playerNum) + "'s score is: ", self.pairs
 				
 	def goFish(self, card, other = None):
 		#pairs = []
+		foundOne = False
 		for i in other.hand:
 			if i == card:
+				system('cls')
+				foundOne = True
 				#pairs.append(card)
-				print other.playerNum, "says: You got my ", card, "!"
-				self.hand.append(other.hand.index(card))
+				print 'Player ' + str(other.playerNum) + " says: You got my ", card, "!"
+				self.hand.append(card)
 				#print 'Match'
 				#print other.hand
 				del other.hand[other.hand.index(card)]
 				#print other.hand
-	
+				self.findPairs()
 				self.showHand()
-		
+				print "Next player's turn..."
+				sleep(6)
 		print
-		print 'Player ' + str(other.playerNum) + " says: Go Fish."
+		if foundOne == False:
+			print 'Player ' + str(other.playerNum) + " says: Go Fish."
 	
 #*********************************************************************
 #END class Deck
@@ -181,7 +192,8 @@ def gameSeq(player):
 	player.getHand()
 	player.printNumCards()
 	player.findPairs()
-	player.showHand()
+	if player.playerNum == 1:
+		player.showHand()
 
 def runInput(player, players):
 	flag = False
@@ -190,11 +202,24 @@ def runInput(player, players):
 	selectedPlayer = 2
 	while(selectedPlayer not in range(1,4)) or (not flag):
 		#selectedPlayer = input('Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: ")
-		print 'Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: (2)"
-		select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any ___'s?")
+		print 'Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: (2) "
+		select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any ___'s? ")
 		flag = player.pick(select)
 		if(selectedPlayer in range(1,4)):
 			player.goFish(select, players[selectedPlayer - 1])
+			
+def runAI(player, players):
+	flag = False
+	selectedPlayer = player.playerNum
+	available = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K']
+	otherPlayers = players
+	
+	while selectedPlayer != player.playerNum:
+		selectedPlayer = choice(otherPlayers).playerNum
+	select = choice(available)
+	print 'Player ' + str(player.playerNum) + " says: Hey Player ", str(selectedPlayer) +'! '
+	select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any " + str(player.aiPick()) + "'s? ")
+	player.goFish(select, players[selectedPlayer - 1])
 
 def checkEnd(players):
 	sum = 0
@@ -242,7 +267,10 @@ while not gameOver:
 		i.cards = prevPlayer.cards
 		prevPlayer = i
 		gameSeq(i)
-		runInput(i, players)
+		if i == player1:
+			runInput(i, players)
+		else:
+			runAI(i, players)
 		sleep(3)
 		system('cls')
 	print 'End of round ' + str(round) + '.'
