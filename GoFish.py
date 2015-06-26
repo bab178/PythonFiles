@@ -109,20 +109,18 @@ class Deck(object):
 	
 	
 	def findPairs(self):
-		num = 0
 		uniques = []
 		for i in range(len(self.hand)):
 			for j in range(len(self.hand)):
 				if self.hand[i] == self.hand[j] and i != j:
-					num += 1
 					if self.hand[i] not in uniques:
 						uniques.append(self.hand[i])
 
-		if num > 0:
+		if len(uniques) > 0:
 			for i in range(0, len(uniques)):
 					print
 					print 'Player', str(self.playerNum), 'found a pair of ' + str(uniques[i]) + "'s!"
-			self.pairs += num/2
+			self.pairs += len(uniques)
 			if self.playerNum == 1:
 				self.showHand()
 				print 'You remove them from your hand and gain a point for each pair.'
