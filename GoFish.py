@@ -1,7 +1,9 @@
 #*****************************************************
 #	Author: Blake Bordovsky
 #	GoFish.py
-#  Version: 1.0
+#   Version: 1.0
+#
+#   Known bug: 3 of a Kind breaks pairs
 #*****************************************************
 from random import choice
 from random import randint
@@ -102,13 +104,16 @@ class Deck(object):
 			
 	def pick(self, card):
 		if card.upper() not in str(self.hand):
-			print "Card not in hand. Try another card."
-			return
-		if card.upper() != 'K' and card.upper() != 'Q' and card.upper() != 'J' and card.upper() != 'A':
-			self.hand.pop(self.hand.index(int(card)))
-		else:
-			self.hand.pop(self.hand.index(card.upper()))
-
+			print "Player " + str(self.playerNum) + " mutters to themselves: I don't have any of those, better try a different card."
+			return False
+		return True
+		# if card.upper() != 'K' and card.upper() != 'Q' and card.upper() != 'J' and card.upper() != 'A':
+			# self.hand.pop(self.hand.index(int(card)))
+			# return True
+		# else:
+			# self.hand.pop(self.hand.index(card.upper()))
+			# return True
+			
 	def checkHand(self):
 		num = 0
 		toPop = []
@@ -116,25 +121,34 @@ class Deck(object):
 			for j in range(len(self.hand)):
 				if self.hand[i] == self.hand[j] and i != j:
 					num += 1
-					toPop.append(i)
-					toPop.append(j)
-		
-		print toPop
+					toPop.append(self.hand[i])
+
+		#print toPop
 		if num > 0:
 			for i in range(0, len(toPop)/2):
-				if i % 2 == 0:
-					print 'Pair of ' + str(self.hand[toPop[i]]) + "'s found!"
+					print
+					print 'Pair of ' + str(toPop[i]) + "'s found!"
 			self.pairs += num/2
-	
+			self.showHand()
+			print 'Removing pairs from hand.'
+			for p in range(len(toPop)):
+				del self.hand[self.hand.index(toPop[p])]
+				
 	def checkOther(self, card, other = None):
-		ind = []
+		toPop = []
 		for i in self.hand:
-			if i == card:
-				ind.append(self.hand.index(card))
-		if len(ind) > 1:
-			print "Pair found"
+			 if i == card:
+				toPop.append(self.hand.index(card))
+		if len(toPop) > 1:
+			print other.playerNum, "says: You got my ", toPop[0], "'s!"
+			self.hand.append(other.hand.index[other.hand[toPop[0]]])
+		else:
+			print
+			print 'Player ', other.playerNum, "says: Go Fish."
+	
 #*********************************************************************
-#END Deck() class11
+#END Deck() class
+#*********************************************************************
 
 def score(players):
 	count = 1
@@ -144,7 +158,60 @@ def score(players):
 		print 'Player', count, 'Score:', p.pairs, '\n'
 		count += 1
 	print '------------------------\n'
+	sleep(5)
 
+def gameSeq(player):
+	player.getHand()
+	player.printNumCards()
+	player.checkHand()
+	player.showHand()
+
+def runInput(player, players):
+	flag = False
+	selectedPlayer = 0
+	while(selectedPlayer not in range(1,4) and (not flag)):
+		selectedPlayer = input('Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: ")
+		select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any ___'s?")
+		flag = player.pick(select)
+	if(selectedPlayer in range(1,4)):
+		player.checkOther(select, players[selectedPlayer - 1])
+	
+def startGame(prevPlayer):
+	numPlayers = 1
+	players = []
+	
+	while numPlayers <= 1:
+		#numPlayers = input('How many players do you want? (2-4)')
+		print 'How many players do you want? (2)'
+		numPlayers = 2
+	
+	if numPlayers == 2:
+		players.append(player1)
+		players.append(player2)
+	elif numPlayers == 3:
+		players.append(player1)
+		players.append(player2)
+		players.append(player3)
+	elif numPlayers == 4:
+		players.append(player1)
+		players.append(player2)
+		players.append(player3)
+		players.append(player4)
+		
+	for i in players:
+		i.cards = prevPlayer.cards
+		prevPlayer = i
+		i.getHand()
+	
+	return [players, numPlayers]
+	
+def checkEnd(players):
+	for p in players:
+		sum = len(p.hand)
+	if sum == 0:
+		return True
+	else:
+		return False
 #START
 system('cls')
 player1 = Deck(1)
@@ -152,40 +219,27 @@ player2 = Deck(2)
 player3 = Deck(3)
 player4 = Deck(4)
 
-#print 'Player', player1.playerNum, ': '
-#player1.getHand()
-#player1.checkHand()
-#player1.showHand()
-#player1.showDeck()
-
-players = []
-players.append(player1)
-players.append(player2)
-players.append(player3)
-players.append(player4)
-
 prevPlayer = player1
 
-for i in players:
-	i.cards = prevPlayer.cards
-	prevPlayer = i
-	i.getHand()
-	
+startResults = startGame(prevPlayer)
+
+players = startResults[0]
+indexes = range(0, startResults[1])
+
+gameOver = False
+
 print 'All', len(players), 'players have drawn their hands.'
 round = 1
-
-while len(players[0].hand) != 0 and len(players[1].hand) and len(players[2].hand) and len(players[3].hand):
+while not gameOver:
 	for i in players:
 		i.cards = prevPlayer.cards
 		prevPlayer = i
-		i.getHand()
-		i.printNumCards()
-		i.checkHand()
-		i.showHand()
-		select = raw_input('Player ' + str(i.playerNum) + ', pick a card: ')
-		i.pick(select)
+		gameSeq(i)
+		runInput(i, players)
+		sleep(2)
 		system('cls')
 	print 'End of round ' + str(round) + '.'
+	gameOver = checkEnd(players)
 	score(players)
 	round += 1
 print 'Game Over'
