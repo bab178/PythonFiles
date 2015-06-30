@@ -2,7 +2,7 @@
 #	Author: Blake Bordovsky
 #	Date: 6/24/2015
 #	GoFish.py
-#   Version: 1.0
+#  Version: 1.0
 #*****************************************************
 from random import choice
 from random import randint
@@ -21,7 +21,7 @@ class Deck(object):
 		else:
 			#Get Deck
 			for suits in range(0,4):
-				self.cards.append(['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'])
+				self.cards.append(['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'])
 				
 	def showDeck(self):
 		if len(self.cards) != 0:
@@ -44,21 +44,21 @@ class Deck(object):
 		return len(self.hand)
 	
 	def randomCard(self):
-		coords = []
-		x = randint(0, len(self.cards)-1)
-		i = choice(self.cards[x])
-		y = self.cards[x].index(i)
-		coords.append(x)
-		coords.append(y)
-		return coords
+		if(self.cards > 0):
+			coords = []
+			x = randint(0, len(self.cards)-1)
+			i = choice(self.cards[x])
+			y = self.cards[x].index(i)
+			coords.append(x)
+			coords.append(y)
+			return coords
 		
 	def getHand(self):
-		if self.numCards() >= 1 and len(self.hand) < 5:
-			for h in range(0, 5 - len(self.hand)):
-				coords = self.randomCard()
-				self.hand.append(self.cards[coords[0]][coords[1]])
-				#Pop card from deck
-				del self.cards[coords[0]][coords[1]]
+		if self.numCards() > 0:
+			coords = self.randomCard()
+			self.hand.append(self.cards[coords[0]][coords[1]])
+
+			del self.cards[coords[0]][coords[1]]
 	
 	def showHand(self):
 		visual = []
@@ -69,10 +69,10 @@ class Deck(object):
 				visual.append('|  ' + '   |')
 				visual.append('|  ' + '   |')
 				
-				if self.hand[v] == 10:
-					visual.append('| ' + str(self.hand[v]) + '  |')
+				if self.hand[v] == '10':
+					visual.append('| ' + self.hand[v] + '  |')
 				else:
-					visual.append('|  ' + str(self.hand[v]) + '  |')
+					visual.append('|  ' + self.hand[v] + '  |')
 					
 				visual.append('|  ' + '   |')
 				visual.append('|  ' + '   |')
@@ -82,10 +82,10 @@ class Deck(object):
 				visual[1] += (' |  ' + '   |')
 				visual[2] += (' |  ' + '   |')
 				
-				if self.hand[v] == 10:
-					visual[3] += (' | ' + str(self.hand[v]) + '  |')
+				if self.hand[v] == '10':
+					visual[3] += (' | ' + self.hand[v] + '  |')
 				else:
-					visual[3] += (' |  ' + str(self.hand[v]) + '  |')
+					visual[3] += (' |  ' + self.hand[v] + '  |')
 					
 				visual[4] += (' |  ' + '   |')
 				visual[5] += (' |  ' + '   |')
@@ -99,14 +99,18 @@ class Deck(object):
 		print
 			
 	def pick(self, card):
-		if card.upper() not in str(self.hand):
-			print "Player " + str(self.playerNum) + " mutters to themselves: I don't have any of those, better try a different card."
+		if card.upper() not in self.hand:
+			print "Player " + str(self.playerNum) + " mutters to themselves: I don't have any of those, better try a different card if I want to get any pairs."
 			return False
 		return True
 			
 	def aiPick(self):
 		return choice(self.hand)
-	
+		
+	def aiSelect(self, card, other = None):
+		if card in other.hand:
+			return 'yes'
+		return 'Go Fish'
 	
 	def findPairs(self):
 		uniques = []
@@ -129,34 +133,40 @@ class Deck(object):
 				del self.hand[self.hand.index(uniques[p])]
 		print 'Player', str(self.playerNum) + "'s score is:      ", str(self.pairs) + '.'
 				
-	def aiFish(self, card, maybe, other = None):
+	def aiFish(self, select, card, other = None):
 		#You have it and Admit it
-		if(card.lower() == 'yes' or card.lower() == 'ye' or card.lower() == 'yeah' or card.lower() == 'yar' or card.lower() == 'y') and (self.playerNum != 1) and (maybe in other.hand):
-			print 'Player ' + str(other.playerNum) + " says: Darn you found my " + str(maybe) + "!"
-			self.hand.append(maybe)
-			del other.hand[other.hand.index(maybe)]
-			self.findPairs()
-		#You Don't have it and Lie
-		elif(card.lower() == 'yes' or card.lower() == 'ye' or card.lower() == 'yeah' or card.lower() == 'yar' or card.lower() == 'y') and (self.playerNum != 1) and (not(maybe in other.hand)):
-			print 'Player ' + str(other.playerNum) + ' LIED!!! -2 points!'
-			other.pairs -= 2
-			self.hand.append(maybe)
-			del other.hand[other.hand.index(maybe)]
+		if(select.lower() == 'yes' or select.lower() == 'ye' or select.lower() == 'yeah' or select.lower() == 'yar' or select.lower() == 'y') and (self.playerNum != 1) and (card in other.hand):
+			print 'Player ' + str(other.playerNum) + " says: Darn you found my " + str(card) + "!"
+			self.hand.append(card)
+			print card, other.hand
+			if card in other.hand:
+				del other.hand[other.hand.index(card)]
 			self.findPairs()
 		#You have it and Lie
-		elif(card.lower() != 'yes' and card.lower() != 'ye' and card.lower() != 'yeah' and card.lower() != 'yar' and card.lower() != 'y') and (self.playerNum != 1) and (maybe in other.hand):
+		elif(select.lower() != 'yes' and select.lower() != 'ye' and select.lower() != 'yeah' and select.lower() != 'yar' and select.lower() != 'y') and (self.playerNum != 1) and (card in other.hand):
 			print 'Player ' + str(other.playerNum) + ' LIED!!! -2 points!'
 			other.pairs -= 2
-			self.hand.append(maybe)
-			del other.hand[other.hand.index(maybe)]
+			self.hand.append(card)
+			if card in other.hand:
+				del other.hand[other.hand.index(card)]
 			self.findPairs()
+		#You Don't have it and Lie
+		elif(select.lower() == 'yes' or select.lower() == 'ye' or select.lower() == 'yeah' or select.lower() == 'yar' or select.lower() == 'y') and (self.playerNum != 1) and (not(card in other.hand)):
+			print 'Player ' + str(other.playerNum) + ' LIED!!! -2 points!'
+			other.pairs -= 2
+			self.hand.append(card)
+			if card in other.hand:
+				del other.hand[other.hand.index(card)]
+			self.findPairs()
+
 		else:
 			print 'Player ' + str(other.playerNum) + " says: Go Fish!"
 		
 	def goFish(self, card, other = None):
 		foundOne = False
+		card = card.upper()
 		for i in other.hand:
-			if i == card:
+			if str(i) == str(card):
 				system('cls')
 				foundOne = True
 				print 'Player ' + str(other.playerNum) + " says: You got my ", card, "!"
@@ -165,7 +175,7 @@ class Deck(object):
 				self.findPairs()
 				self.showHand()
 				print "Next player's turn..."
-				sleep(6)
+				sleep(4)
 		print
 		if foundOne == False:
 			print 'Player ' + str(other.playerNum) + " says: Go Fish."
@@ -178,11 +188,8 @@ def startGame(prevPlayer):
 	numPlayers = 1
 	players = []
 	
-	while numPlayers <= 1:
-		#numPlayers = input('How many players do you want? (2-4)')
-		print 'How many players do you want? (2)'
-		#hardcoded
-		numPlayers = 2
+	while numPlayers <= 1 or numPlayers > 4:
+		numPlayers = input('How many players do you want? (2-4): ')
 	
 	if numPlayers == 2:
 		players.append(player1)
@@ -207,43 +214,47 @@ def startGame(prevPlayer):
 
 def gameSeq(player):
 	player.getHand()
+	player.getHand()
+	player.getHand()
+	player.getHand()
 	player.printNumCards()
 	player.findPairs()
 	if player.playerNum == 1:
 		player.showHand()
 
 def runInput(player, players):
-	flag = False
-	#hardcoded
-	#selectedPlayer = 0
-	selectedPlayer = 2
-	while(selectedPlayer not in range(1,4)) or (not flag):
-		#selectedPlayer = input('Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: ")
-		print 'Player ' + str(player.playerNum) + " says: Hey Player <1, 2, 3, 4>!: (2) "
-		select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any _'s? ")
-		flag = player.pick(select)
-		if(selectedPlayer in range(1,4)):
-			player.goFish(select, players[selectedPlayer - 1])
-			sleep(2)
+	selectedPlayer = 1
+	while(selectedPlayer == 1 or selectedPlayer > len(players)):
+		selectedPlayer = input('Player ' + str(player.playerNum) + " says: Hey Player <2, 3, 4>!: ")
+
+	select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any _'s? ")
+	player.pick(select)
+	if(player.playerNum == 1):
+		player.goFish(select, players[selectedPlayer - 1])
+	sleep(2)
 			
 def runAI(player, players):
 	flag = False
 	selectedPlayer = player.playerNum
-	available = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K']
-	#harder player.aiPick()
+	#available = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K']
+
 	otherPlayers = players
 	
 	while selectedPlayer == player.playerNum:
 		selectedPlayer = choice(otherPlayers).playerNum
-	maybe = choice(available)
+	card = player.aiPick()
 	
 	print 'Player ' + str(player.playerNum) + " says: Hey Player ", str(selectedPlayer) +'! '
-	print 'Your Hand:'
-	players[0].showHand()
-	select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any " + str(maybe) + "'s? (Yes/Go Fish)")
-	
-	player.aiFish(select, maybe, players[selectedPlayer - 1])
-	sleep(2)
+	if selectedPlayer == 1:
+		print 'Your Hand:'
+		players[0].showHand()
+		select = raw_input('Player ' + str(player.playerNum) + " says: Do you have any " + card + "'s? (Yes/Go Fish)")
+		sleep(2)
+	else:
+		print 'Player ' + str(player.playerNum) + " says: Do you have any " + card + "'s? (Yes/Go Fish)"
+		select = player.aiSelect(card, players[selectedPlayer - 1])
+		player.aiFish(select, card, players[selectedPlayer - 1])
+		sleep(4)
 	
 def checkEnd(players):
 	sum = 0
@@ -262,7 +273,7 @@ def score(players):
 		print 'Player', count, 'Score:', p.pairs, '\n'
 		count += 1
 	print '------------------------\n'
-	sleep(5)
+
 
 #START
 
@@ -302,4 +313,8 @@ while not gameOver:
 	round += 1
 print 'Game Over'
 score(players)
-print max(players.playerNum), 'wins!'
+winner = 1
+for w in players:
+	if i.pairs > winner.pairs:
+		winner = i.playerNum
+print 'Player', winner, 'wins!'
