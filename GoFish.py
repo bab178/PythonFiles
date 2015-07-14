@@ -283,7 +283,7 @@ def score(players):
 #Windows
 system('cls')
 
-#		  Deck(playerNum)
+#		     Deck(playerNum)
 player1 = Deck(1)
 player2 = Deck(2)
 player3 = Deck(3)
