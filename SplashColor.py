@@ -1,294 +1,288 @@
 from random import randint
 from os import system
 
+class colorSplash(object):
 
-global ROWS
-ROWS = 20
-global COLS
-COLS = 26
-global SUMALL
-SUMALL = ROWS*COLS
-global NUMCOLORS
-NUMCOLORS = 3
-
-def getRandomNum():
-	return randint(0,NUMCOLORS)
-
-def prompt(colorGrid, boolGrid):
-	system('cls')
-	select = ""
-	while select not in range(0, NUMCOLORS+1):
-		showGrid(colorGrid)
-		select = raw_input('Choose a number you wish to spread ' + str(range(0, NUMCOLORS+1)) + ' : ')
-		system('cls')
-		
-		if select != "":
-			select = int(select)
-
-	return select
-	
-def create():
+	ROWS = 10
+	COLS = 20
+	SUMALL = ROWS*COLS
+	cursum = 0
+	NUMCOLORS = 3
 	colorGrid = []
 	boolGrid = []
-	for r in range(0, ROWS):
-		colorRow = []
-		boolRow = []
-		for c in range (0, COLS):
-			colorRow.append(getRandomNum())
-			boolRow.append(False)
-		colorGrid.append(colorRow)
-		boolGrid.append(boolRow)
-		grids = [colorGrid, boolGrid]
-	return grids
 	
-def showGrid(grid):
-	for r in range(0, ROWS):
-		for c in range (0, COLS):
-			print grid[r][c],
+	def __init__(self):
+		#create board
+		for r in range(0, self.ROWS):
+			colorRow = []
+			boolRow = []
+			for c in range (0, self.COLS):
+				colorRow.append(self.getRandomNum(self.NUMCOLORS))
+				boolRow.append(False)
+			self.colorGrid.append(colorRow)
+			self.boolGrid.append(boolRow)
+		#Plant virus
+		x = self.getRandomNum(self.ROWS-1)
+		y = self.getRandomNum(self.COLS-1)
+		self.boolGrid[x][y] = True
+		virus = int(self.colorGrid[x][y])
+		self.checkSpread(virus, 0)
+	
+	
+	def getRandomNum(self, MAX):
+		return randint(0, MAX)
+
+	def prompt(self):
+		system('cls')
+		select = ""
+		while select not in range(0, self.NUMCOLORS+1):
+			self.showGrid(self.colorGrid)
+			select = raw_input('Choose a number you wish to spread ' + str(range(0, self.NUMCOLORS+1)) + ' : ')
+			system('cls')
+			
+			if select != "":
+				select = int(select)
+
+		return select
+				
+	def showGrid(self, grid):
+		for r in range(0, self.ROWS):
+			for c in range (0, self.COLS):
+				print grid[r][c],
+			print
 		print
-	print
 
-def initialize(colorGrid, boolGrid):
-	#Top Left Corner is Owned
-	boolGrid[0][0] = True
-	checkSpread(colorGrid[0][0], 0, colorGrid, boolGrid)
-
-def checkSpread(virus, match, colorGrid, boolGrid):
-	match = False
-	for r in range(0, ROWS):
-			for c in range (0, COLS):
-				if boolGrid[r][c] == True:
-					if(r == 0 and c == 0):
-						
-						if(boolGrid[r+1][c+1] == False and colorGrid[r+1][c+1] == virus): 
-							boolGrid[r+1][c+1] = True
-							colorGrid[r+1][c+1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r+1][c] == False and colorGrid[r+1][c] == virus):
-							boolGrid[r+1][c] = True
-							colorGrid[r+1][c] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r][c+1] == False and colorGrid[r][c+1] == virus):
-							boolGrid[r][c+1] = True
-							colorGrid[r][c+1] = colorGrid[r][c]
-							match = True
-
-					#bottom left corner
-					elif(r == ROWS-1 and c == 0):
-					
-						if(boolGrid[r-1][c+1] == False and colorGrid[r-1][c+1] == virus):	
-							boolGrid[r-1][c+1] = True 
-							colorGrid[r-1][c+1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r-1][c] == False and colorGrid[r-1][c] == virus):   	
-							boolGrid[r-1][c] = True 
-							colorGrid[r-1][c] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r][c+1] == False and colorGrid[r][c+1] == virus): 	
-							boolGrid[r][c+1] = True 
-							colorGrid[r][c+1] = colorGrid[r][c]
-							match = True
-
-					#top right corner
-					elif(r == 0 and c == COLS-1):
-					
-						if(boolGrid[r+1][c-1] == False and colorGrid[r+1][c-1] == virus):	
-							boolGrid[r+1][c-1] = True 
-							colorGrid[r+1][c-1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r+1][c] == False and colorGrid[r+1][c] == virus):	
-							boolGrid[r+1][c]  = True 
-							colorGrid[r+1][c]  = colorGrid[r][c]
-							match = True
-						if(boolGrid[r][c-1] == False and colorGrid[r][c-1] == virus):	   
-							boolGrid[r][c-1] = True
-							colorGrid[r][c-1] = colorGrid[r][c]
-							match = True
-
-					#Bottom right corner
-					elif(r == ROWS-1 and c == COLS-1):
-					
-						if(boolGrid[r-1][c-1] == False and colorGrid[r-1][c-1] == virus):	 
-							boolGrid[r-1][c-1] = True 
-							colorGrid[r-1][c-1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r-1][c] == False and colorGrid[r-1][c] == virus):		
-							boolGrid[r-1][c] = True 
-							colorGrid[r-1][c] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r][c-1] == False and colorGrid[r][c-1] == virus):	
-							boolGrid[r][c-1] = True 
-							colorGrid[r][c-1] = colorGrid[r][c]
-							match = True
-
-
-					#Top Row Checks
-					elif(r == 0 and (c != 0 or c != COLS)):
-					
-						if(boolGrid[r][c+1] == False and colorGrid[r][c+1] == virus):	
-							boolGrid[r][c+1] = True
-							colorGrid[r][c+1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r][c-1] == False and colorGrid[r][c-1] == virus):	
-							boolGrid[r][c-1] = True 
-							colorGrid[r][c-1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r+1][c+1] == False and colorGrid[r+1][c+1] == virus):
-							boolGrid[r+1][c+1] = True 
-							colorGrid[r+1][c+1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r+1][c-1] == False and colorGrid[r+1][c-1] == virus):
-							boolGrid[r+1][c-1] = True 
-							colorGrid[r+1][c-1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r+1][c] == False and colorGrid[r+1][c] == virus):	
-							boolGrid[r+1][c]= True 
-							colorGrid[r+1][c] = colorGrid[r][c]
-							match = True
-
-						
-					#Bottom Row checks
-					elif(r == ROWS-1 and (c != 0 or c != COLS)):
-					
-						if(boolGrid[r][c+1] == False and colorGrid[r][c+1] == virus):	
-							boolGrid[r][c+1] = True 
-							colorGrid[r][c+1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r][c-1] == False and colorGrid[r][c-1] == virus):	
-							boolGrid[r][c-1] = True 
-							colorGrid[r][c-1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r-1][c-1] == False and colorGrid[r-1][c-1] == virus):	
-							boolGrid[r-1][c-1] = True 
-							colorGrid[r-1][c-1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r-1][c+1] == False and colorGrid[r-1][c+1] == virus):	
-							boolGrid[r-1][c+1] = True 
-							colorGrid[r-1][c+1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r-1][c] == False and colorGrid[r-1][c] == virus):	
-							boolGrid[r-1][c] = True 
-							colorGrid[r-1][c] = colorGrid[r][c]
-							match = True
-					
-					#Left Side Checks
-					elif(c == 0 and (r != 0 or r != ROWS)):
-
-						if(boolGrid[r][c+1] == False and colorGrid[r][c+1] == virus):	 
-							boolGrid[r][c+1] = True 
-							colorGrid[r][c+1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r+1][c] == False and colorGrid[r+1][c] == virus):	 
-							boolGrid[r+1][c] = True 
-							colorGrid[r+1][c] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r-1][c] == False and colorGrid[r-1][c] == virus):		 
-							boolGrid[r-1][c] = True 
-							colorGrid[r-1][c] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r-1][c+1] == False and colorGrid[r-1][c+1] == virus):	 
-							boolGrid[r-1][c+1] = True 
-							colorGrid[r-1][c+1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r+1][c+1] == False and colorGrid[r+1][c+1] == virus):	
-							boolGrid[r+1][c+1] = True 
-							colorGrid[r+1][c+1] = colorGrid[r][c]
-							match = True
-					
-					#Right Side Checks
-					elif(c == COLS-1 and (r != 0 or r != ROWS)):
-					
-						if(boolGrid[r][c-1] == False and colorGrid[r][c-1] == virus):		
-							boolGrid[r][c-1] = True 
-							colorGrid[r][c-1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r+1][c] == False and colorGrid[r+1][c] == virus):	
-							boolGrid[r+1][c] = True
-							colorGrid[r+1][c] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r-1][c] == False and colorGrid[r-1][c] == virus):	
-							boolGrid[r-1][c] = True
-							colorGrid[r-1][c] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r-1][c-1] == False and colorGrid[r-1][c-1] == virus):
-							boolGrid[r-1][c-1] = True
-							colorGrid[r-1][c-1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r+1][c-1] == False and colorGrid[r+1][c-1] == virus):
-							boolGrid[r+1][c-1] = True
-							colorGrid[r+1][c-1] = colorGrid[r][c]
-							match = True
-
-					#Middle checks
-					elif r > 0 and c > 0:
-						if(boolGrid[r-1][c+1] == False and colorGrid[r-1][c+1] == virus):	
-							boolGrid[r-1][c+1] = True 
-							colorGrid[r-1][c+1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r][c+1] == False and colorGrid[r][c+1] == virus):
-							boolGrid[r][c+1] = True 
-							colorGrid[r][c+1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r][c-1] == False and colorGrid[r][c-1] == virus):
-							boolGrid[r][c-1] = True 
-							colorGrid[r][c-1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r+1][c] == False and colorGrid[r+1][c] == virus):	
-							boolGrid[r+1][c] = True
-							colorGrid[r+1][c] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r-1][c] == False and colorGrid[r-1][c] == virus):	
-							boolGrid[r-1][c] = True 
-							colorGrid[r-1][c] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r+1][c+1] == False and colorGrid[r+1][c+1] == virus): 
-							boolGrid[r+1][c+1] = True
-							colorGrid[r+1][c+1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r-1][c-1] == False and colorGrid[r-1][c-1] == virus):	
-							boolGrid[r-1][c-1] = True 
-							colorGrid[r-1][c-1] = colorGrid[r][c]
-							match = True
-						if(boolGrid[r+1][c-1] == False and colorGrid[r+1][c-1] == virus):
-							boolGrid[r+1][c-1] = True
-							colorGrid[r+1][c-1] = colorGrid[r][c]
-							match = True
-	
-	#RECURSION
-	while match == True:
-		checkSpread(virus, match, colorGrid, boolGrid)
+	def checkSpread(self, virus, match):
 		match = False
+		for r in range(0, self.ROWS):
+				for c in range (0, self.COLS):
+					if self.boolGrid[r][c] == True:
+						if(r == 0 and c == 0):
+							
+							if(self.boolGrid[r+1][c+1] == False and self.colorGrid[r+1][c+1] == virus): 
+								self.boolGrid[r+1][c+1] = True
+								self.colorGrid[r+1][c+1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r+1][c] == False and self.colorGrid[r+1][c] == virus):
+								self.boolGrid[r+1][c] = True
+								self.colorGrid[r+1][c] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r][c+1] == False and self.colorGrid[r][c+1] == virus):
+								self.boolGrid[r][c+1] = True
+								self.colorGrid[r][c+1] = self.colorGrid[r][c]
+								match = True
+
+						#bottom left corner
+						elif(r == self.ROWS-1 and c == 0):
+						
+							if(self.boolGrid[r-1][c+1] == False and self.colorGrid[r-1][c+1] == virus):	
+								self.boolGrid[r-1][c+1] = True 
+								self.colorGrid[r-1][c+1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r-1][c] == False and self.colorGrid[r-1][c] == virus):   	
+								self.boolGrid[r-1][c] = True 
+								self.colorGrid[r-1][c] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r][c+1] == False and self.colorGrid[r][c+1] == virus): 	
+								self.boolGrid[r][c+1] = True 
+								self.colorGrid[r][c+1] = self.colorGrid[r][c]
+								match = True
+
+						#top right corner
+						elif(r == 0 and c == self.COLS-1):
+						
+							if(self.boolGrid[r+1][c-1] == False and self.colorGrid[r+1][c-1] == virus):	
+								self.boolGrid[r+1][c-1] = True 
+								self.colorGrid[r+1][c-1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r+1][c] == False and self.colorGrid[r+1][c] == virus):	
+								self.boolGrid[r+1][c]  = True 
+								self.colorGrid[r+1][c]  = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r][c-1] == False and self.colorGrid[r][c-1] == virus):	   
+								self.boolGrid[r][c-1] = True
+								self.colorGrid[r][c-1] = self.colorGrid[r][c]
+								match = True
+
+						#Bottom right corner
+						elif(r == self.ROWS-1 and c == self.COLS-1):
+						
+							if(self.boolGrid[r-1][c-1] == False and self.colorGrid[r-1][c-1] == virus):	 
+								self.boolGrid[r-1][c-1] = True 
+								self.colorGrid[r-1][c-1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r-1][c] == False and self.colorGrid[r-1][c] == virus):		
+								self.boolGrid[r-1][c] = True 
+								self.colorGrid[r-1][c] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r][c-1] == False and self.colorGrid[r][c-1] == virus):	
+								self.boolGrid[r][c-1] = True 
+								self.colorGrid[r][c-1] = self.colorGrid[r][c]
+								match = True
+
+
+						#Top Row Checks
+						elif(r == 0 and (c != 0 or c != self.COLS)):
+						
+							if(self.boolGrid[r][c+1] == False and self.colorGrid[r][c+1] == virus):	
+								self.boolGrid[r][c+1] = True
+								self.colorGrid[r][c+1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r][c-1] == False and self.colorGrid[r][c-1] == virus):	
+								self.boolGrid[r][c-1] = True 
+								self.colorGrid[r][c-1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r+1][c+1] == False and self.colorGrid[r+1][c+1] == virus):
+								self.boolGrid[r+1][c+1] = True 
+								self.colorGrid[r+1][c+1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r+1][c-1] == False and self.colorGrid[r+1][c-1] == virus):
+								self.boolGrid[r+1][c-1] = True 
+								self.colorGrid[r+1][c-1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r+1][c] == False and self.colorGrid[r+1][c] == virus):	
+								self.boolGrid[r+1][c]= True 
+								self.colorGrid[r+1][c] = self.colorGrid[r][c]
+								match = True
+
+							
+						#Bottom Row checks
+						elif(r == self.ROWS-1 and (c != 0 or c != self.COLS)):
+						
+							if(self.boolGrid[r][c+1] == False and self.colorGrid[r][c+1] == virus):	
+								self.boolGrid[r][c+1] = True 
+								self.colorGrid[r][c+1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r][c-1] == False and self.colorGrid[r][c-1] == virus):	
+								self.boolGrid[r][c-1] = True 
+								self.colorGrid[r][c-1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r-1][c-1] == False and self.colorGrid[r-1][c-1] == virus):	
+								self.boolGrid[r-1][c-1] = True 
+								self.colorGrid[r-1][c-1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r-1][c+1] == False and self.colorGrid[r-1][c+1] == virus):	
+								self.boolGrid[r-1][c+1] = True 
+								self.colorGrid[r-1][c+1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r-1][c] == False and self.colorGrid[r-1][c] == virus):	
+								self.boolGrid[r-1][c] = True 
+								self.colorGrid[r-1][c] = self.colorGrid[r][c]
+								match = True
+						
+						#Left Side Checks
+						elif(c == 0 and (r != 0 or r != self.ROWS)):
+
+							if(self.boolGrid[r][c+1] == False and self.colorGrid[r][c+1] == virus):	 
+								self.boolGrid[r][c+1] = True 
+								self.colorGrid[r][c+1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r+1][c] == False and self.colorGrid[r+1][c] == virus):	 
+								self.boolGrid[r+1][c] = True 
+								self.colorGrid[r+1][c] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r-1][c] == False and self.colorGrid[r-1][c] == virus):		 
+								self.boolGrid[r-1][c] = True 
+								self.colorGrid[r-1][c] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r-1][c+1] == False and self.colorGrid[r-1][c+1] == virus):	 
+								self.boolGrid[r-1][c+1] = True 
+								self.colorGrid[r-1][c+1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r+1][c+1] == False and self.colorGrid[r+1][c+1] == virus):	
+								self.boolGrid[r+1][c+1] = True 
+								self.colorGrid[r+1][c+1] = self.colorGrid[r][c]
+								match = True
+						
+						#Right Side Checks
+						elif(c == self.COLS-1 and (r != 0 or r != self.ROWS)):
+						
+							if(self.boolGrid[r][c-1] == False and self.colorGrid[r][c-1] == virus):		
+								self.boolGrid[r][c-1] = True 
+								self.colorGrid[r][c-1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r+1][c] == False and self.colorGrid[r+1][c] == virus):	
+								self.boolGrid[r+1][c] = True
+								self.colorGrid[r+1][c] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r-1][c] == False and self.colorGrid[r-1][c] == virus):	
+								self.boolGrid[r-1][c] = True
+								self.colorGrid[r-1][c] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r-1][c-1] == False and self.colorGrid[r-1][c-1] == virus):
+								self.boolGrid[r-1][c-1] = True
+								self.colorGrid[r-1][c-1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r+1][c-1] == False and self.colorGrid[r+1][c-1] == virus):
+								self.boolGrid[r+1][c-1] = True
+								self.colorGrid[r+1][c-1] = self.colorGrid[r][c]
+								match = True
+
+						#Middle checks
+						elif r > 0 and c > 0:
+							if(self.boolGrid[r-1][c+1] == False and self.colorGrid[r-1][c+1] == virus):	
+								self.boolGrid[r-1][c+1] = True 
+								self.colorGrid[r-1][c+1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r][c+1] == False and self.colorGrid[r][c+1] == virus):
+								self.boolGrid[r][c+1] = True 
+								self.colorGrid[r][c+1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r][c-1] == False and self.colorGrid[r][c-1] == virus):
+								self.boolGrid[r][c-1] = True 
+								self.colorGrid[r][c-1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r+1][c] == False and self.colorGrid[r+1][c] == virus):	
+								self.boolGrid[r+1][c] = True
+								self.colorGrid[r+1][c] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r-1][c] == False and self.colorGrid[r-1][c] == virus):	
+								self.boolGrid[r-1][c] = True 
+								self.colorGrid[r-1][c] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r+1][c+1] == False and self.colorGrid[r+1][c+1] == virus): 
+								self.boolGrid[r+1][c+1] = True
+								self.colorGrid[r+1][c+1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r-1][c-1] == False and self.colorGrid[r-1][c-1] == virus):	
+								self.boolGrid[r-1][c-1] = True 
+								self.colorGrid[r-1][c-1] = self.colorGrid[r][c]
+								match = True
+							if(self.boolGrid[r+1][c-1] == False and self.colorGrid[r+1][c-1] == virus):
+								self.boolGrid[r+1][c-1] = True
+								self.colorGrid[r+1][c-1] = self.colorGrid[r][c]
+								match = True
 		
-	return updateSpread(virus, colorGrid, boolGrid)
+		#RECURSION
+		while match == True:
+			self.checkSpread(virus, match)
+			match = False
+			
+		self.cursum = self.updateSpread(virus)
 
 
-def updateSpread(virus, colorGrid, boolGrid):
-	sum = 0
-	for r in range(0, ROWS):
-			for c in range (0, COLS):
-				if boolGrid[r][c] == True:
-					colorGrid[r][c] = '*'
-					sum += 1
-	return sum
-					
-					
-def checkWin(cursum):
-	if cursum == SUMALL:
-		showGrid(colorGrid)
-		print "					YOU WON!!!"
-		return True
-	return False
+	def updateSpread(self, virus):
+		sum = 0
+		for r in range(0, self.ROWS):
+				for c in range (0, self.COLS):
+					if self.boolGrid[r][c] == True:
+						self.colorGrid[r][c] = '*'
+						sum += 1
+		return sum
+						
+	def checkWin(self):
+		if self.cursum == self.SUMALL:
+			self.showGrid(self.colorGrid)
+			print "		YOU WON!!!"
+			return True
+		return False
 
 system('cls')
-grids = create()
-colorGrid = grids[0]
-boolGrid = grids[1]
-initialize(colorGrid, boolGrid)
-virus = prompt(colorGrid, boolGrid)
-cursum = checkSpread(virus, 0, colorGrid, boolGrid)
+grid = colorSplash()
+virus = grid.prompt()
+grid.checkSpread(virus, 0)
 
-
-while checkWin(cursum) == False:
-	virus = prompt(colorGrid, boolGrid)
-	cursum = checkSpread(virus, 0, colorGrid, boolGrid)
+while grid.checkWin() == False:
+	virus = grid.prompt()
+	grid.checkSpread(virus, 0)
 
