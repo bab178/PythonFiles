@@ -344,7 +344,7 @@ pygame.init()
 grid = colorSplash()
 
 # Set the HEIGHT and WIDTH of the screen
-WINDOW_SIZE = [grid.ROWS * (grid.WIDTH * grid.MARGIN), grid.COLS * (grid.HEIGHT * grid.MARGIN)]
+WINDOW_SIZE = [grid.ROWS * grid.WIDTH * grid.MARGIN, grid.COLS * grid.HEIGHT + grid.MARGIN]
 screen = pygame.display.set_mode(WINDOW_SIZE)
  
 # Set title of screen
@@ -372,12 +372,14 @@ while not done:
 	# Set the screen background
 	print grid.colors["BLACK"]
 	screen.fill((0,0,0))
-	grid.showGrid(grid.colorGrid)
-	# Limit to 60 frames per second
-	clock.tick(60)
-	# Go ahead and update the screen with what we've drawn.
-	pygame.display.flip()
 	virus = grid.prompt()
+	grid.showGrid(grid.colorGrid)
+	pygame.display.update()
+	# Limit to 60 frames per second
+	#clock.tick(60)
+	# Go ahead and update the screen with what we've drawn.
+	#pygame.display.flip()
+	
 # Be IDLE friendly. If you forget this line, the program will 'hang'
 # on exit.
 pygame.quit()
