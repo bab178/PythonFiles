@@ -4,31 +4,28 @@ from pygame.locals import Color
 import pygame
 
 class colorSplash(object):
-
-	ROWS = 10
-	COLS = 20
-	SUMALL = ROWS*COLS
-	cursum = 0
-	NUMCOLORS = 3
-	colorGrid = []
-	boolGrid = []
-	# Define some colors
-	colors = {
-	'RED'   : Color(255,0,0),
-	'GREEN' : Color(0,255,0),
-	'BLUE'  : Color(0,0,255),
-	'WHITE' : Color(255,255,255),
-	'BLACK' : Color(0,0,0)
-	}
-	 
-	# This sets the WIDTH and HEIGHT of each grid location
-	WIDTH = 20
-	HEIGHT = 20
-	 
-	# This sets the margin between each cell
-	MARGIN = 5
 	
 	def __init__(self):
+	
+		self.NUMCOLORS = 3
+		self.ROWS = 15
+		self.COLS = 30
+		#PER CELL
+		self.WIDTH = 20
+		self.HEIGHT = 20
+		self.MARGIN = 5
+		self.SUMALL = self.ROWS*self.COLS
+		self.cursum = 0
+		self.colorGrid = []
+		self.boolGrid = []
+		self.BLACK = Color(0,0,0)
+		self.colors = {
+		'BLUE'   : Color(0,0,255),
+		'GREEN' : Color(0,255,0),
+		'RED'     : Color(255,0,0),
+		'WHITE' : Color(255,255,255)
+		}
+		 
 		#create board
 		for r in range(0, self.ROWS):
 			colorRow = []
@@ -48,68 +45,31 @@ class colorSplash(object):
 	
 	def getRandomNum(self, MAX):
 		return randint(0, MAX)
-
-	def prompt(self):
-		system('cls')
-		select = ""
-		while select not in range(0, self.NUMCOLORS+1):
-			self.showGrid(self.colorGrid)
-			enumColors = []
-			for keys in self.colors:
-				enumColors.append(keys)
-			select = raw_input('Choose a number you wish to spread ' + str(enumColors) + ' : ')
-			system('cls')
-			
-			if select != "":
-				select = int(select)
-
-		return select
 				
 	def showGrid(self, grid):
 		# Draw the grid
+	
 		for r in range(0, self.ROWS):
 			for c in range (0, self.COLS):
 				if grid[r][c] == 0:
-					color = self.colors['WHITE']
-					pygame.draw.rect(screen,
-					color,
-					[(self.MARGIN + self.WIDTH) * c + self.MARGIN,
-					(self.MARGIN + self.HEIGHT) * r + self.MARGIN,
-					self.WIDTH,
-					self.HEIGHT])
-				elif grid[r][c] == 1:
-					color = self.colors['GREEN']
-					pygame.draw.rect(screen,
-					color,
-					[(self.MARGIN + self.WIDTH) * c + self.MARGIN,
-					(self.MARGIN + self.HEIGHT) * r + self.MARGIN,
-					self.WIDTH,
-					self.HEIGHT])
-				elif grid[r][c] == 2:
 					color = self.colors['BLUE']
-					pygame.draw.rect(screen,
-					color,
-					[(self.MARGIN + self.WIDTH) * c + self.MARGIN,
-					(self.MARGIN + self.HEIGHT) * r + self.MARGIN,
-					self.WIDTH,
-					self.HEIGHT])
+				elif grid[r][c] == 1:
+					color = self.colors['WHITE']
+				elif grid[r][c] == 2:
+					color = self.colors['GREEN']
 				elif grid[r][c] == 3:
 					color = self.colors['RED']
-					pygame.draw.rect(screen,
-					color,
-					[(self.MARGIN + self.WIDTH) * c + self.MARGIN,
-					(self.MARGIN + self.HEIGHT) * r + self.MARGIN,
-					self.WIDTH,
-					self.HEIGHT])
 				else:
-					color = self.colors['BLACK']
-					pygame.draw.rect(screen,
-					color,
-					[(self.MARGIN + self.WIDTH) * c + self.MARGIN,
-					(self.MARGIN + self.HEIGHT) * r + self.MARGIN,
-					self.WIDTH,
-					self.HEIGHT])
-
+					color = self.BLACK
+			
+				pygame.draw.rect(screen,color,
+				[(self.MARGIN + self.WIDTH) * c + self.MARGIN,
+				(self.MARGIN + self.HEIGHT) * r + self.MARGIN,
+				self.WIDTH, self.HEIGHT])
+		w = 5
+		for c in self.colors:
+				pygame.draw.rect(screen, self.colors[c],[w,  self.ROWS*(self.WIDTH + self.MARGIN) + self.MARGIN ,self.WIDTH,self.HEIGHT])
+				w += 25
 
 	def checkSpread(self, virus, match):
 		match = False
@@ -344,42 +304,48 @@ pygame.init()
 grid = colorSplash()
 
 # Set the HEIGHT and WIDTH of the screen
-WINDOW_SIZE = [grid.ROWS * grid.WIDTH * grid.MARGIN, grid.COLS * grid.HEIGHT + grid.MARGIN]
+#WINDOW_SIZE = [grid.COLS * grid.HEIGHT + grid.MARGIN + 100, grid.COLS * grid.HEIGHT + grid.MARGIN - 150]
+WINDOW_SIZE = [grid.COLS * grid.HEIGHT + grid.MARGIN*21
+						, grid.ROWS * grid.HEIGHT + grid.MARGIN*20 + 5]
+print "Windows Size: ", WINDOW_SIZE
 screen = pygame.display.set_mode(WINDOW_SIZE)
  
 # Set title of screen
 pygame.display.set_caption("Splash Color")
- 
-# Loop until the user clicks the close button.
-done = False
- 
+
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
  
 # -------- Main Program Loop -----------
-while not done:
+while not(grid.checkWin()):
     for event in pygame.event.get():  # User did something
-        if event.type == pygame.QUIT:  # If user clicked close
-            done = True  # Flag that we are done so we exit this loop
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            # User clicks the mouse. Get the position
-            pos = pygame.mouse.get_pos()
-            # Change the x/y screen coordinates to grid coordinates
-            c = pos[0] /(grid.WIDTH + grid.MARGIN)
-            r = pos[1] /(grid.HEIGHT + grid.MARGIN)
-            # Set that location to zero
-            print("Click ", pos, "Grid coordinates: ", r, c)
-	# Set the screen background
-	print grid.colors["BLACK"]
-	screen.fill((0,0,0))
-	virus = grid.prompt()
-	grid.showGrid(grid.colorGrid)
-	pygame.display.update()
-	# Limit to 60 frames per second
-	#clock.tick(60)
-	# Go ahead and update the screen with what we've drawn.
-	#pygame.display.flip()
-	
-# Be IDLE friendly. If you forget this line, the program will 'hang'
-# on exit.
-pygame.quit()
+		if event.type == pygame.QUIT:  # If user clicked close
+			pygame.quit() # Flag that we are done so we exit this loop
+		elif event.type == pygame.MOUSEBUTTONDOWN:
+			# User clicks the mouse. Get the position
+			pos = pygame.mouse.get_pos()
+			# Change the x/y screen coordinates to grid coordinates
+			c = pos[0] /(grid.WIDTH + grid.MARGIN)
+			r = pos[1] /(grid.HEIGHT + grid.MARGIN)
+			#print("Click ", pos, "Grid coordinates: ", r, c)
+			if(r == grid.ROWS and c == 0):
+				#BLUE
+				grid.checkSpread(0,0)
+			elif(r == grid.ROWS and c == 1):
+				#GREEN
+				grid.checkSpread(1,0)
+			elif(r == grid.ROWS and c == 2):
+				#WHITE
+				grid.checkSpread(2,0)
+			elif(r == grid.ROWS and c == 3):
+				#RED
+				grid.checkSpread(3,0)
+			elif(r == grid.ROWS and c == 4):
+				#BLACK
+				grid.checkSpread(4,0)
+			
+		screen.fill(grid.BLACK)
+		grid.showGrid(grid.colorGrid)
+		pygame.display.update()
+		# Limit to 60 frames per second
+		#clock.tick(60)
