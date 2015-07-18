@@ -197,3 +197,6 @@ cash.clear()
 retVal = -1
 while retVal != 0:
 	retVal = cash.mainMenu()
+
+raw_input("\nPress enter to end session. . .")
+	
