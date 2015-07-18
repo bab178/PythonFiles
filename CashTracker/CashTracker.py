@@ -1,5 +1,5 @@
 #BLAKE BORDOVSKY
-from os import system, path
+from os import system, path, name
 from time import strftime
 from sys import stdout
 from collections import OrderedDict
@@ -8,20 +8,36 @@ class CashTracker(object):
 
 	def __init__(self):		
 		self.startTime = strftime("%Y-%m-%d_%H-%M-%S")
-		self.mainMenuItems = ['Add new item', 'Sell items', 'Show items',  'Exit']
+		self.mainMenuItems = ['Sell items', 'Show items',  'End Session']
 		self.transactionTypes = {}
 		self.totalCash = 0.00
 		self.fileIsOpen = False
 		self.stdout = file
+		self.itemNames = []
 		if path.isfile("CashTrackerInput.csv"):
 			for item in self.file_split(open("CashTrackerInput.csv")):
-				pass
-			self.sortDict()
+				self.itemNames.append(item)
+	
 	def getDateTime(self):
 		return strftime("%Y-%m-%d_%H-%M-%S")
+
+	def sortDict(self,temp):
+		#self.transactionTypes = OrderedDict(sorted(self.transactionTypes.items(), key=lambda t: t[0]))
+		pass
 		
-	def sortDict(self):
-		self.transactionTypes = OrderedDict(sorted(self.transactionTypes.items(), key=lambda t: t[0]))
+	def clear(self):
+		if name == 'nt':
+			return system('cls')
+		else:
+			return system('clear')
+	
+	def openFile(self):
+		if(self.fileIsOpen == False):
+			self.file = file(self.startTime+'.csv', 'a')
+			line = "Time Sold ,Num Sold,Item,Price,Subtotal" 
+			print >> self.file, line
+			self.fileIsOpen = True
+
 	def file_split(self, f, delim=',', bufsize=1024):
 		prev = ''
 		item = ''
@@ -37,6 +53,7 @@ class CashTracker(object):
 			if len(split) > 0:
 				item = split[0]
 				x = split[1]
+				yield item
 				both = x.split('\n')
 				x = both[0]
 				self.transactionTypes[item] = x
@@ -47,7 +64,7 @@ class CashTracker(object):
 						back = both[1]
 						x = front
 						self.transactionTypes[x] = back
-					yield x
+					
 				else:
 					item = x
 					switch = True
@@ -60,7 +77,7 @@ class CashTracker(object):
 			yield prev
 	
 	def mainMenu(self):
-		print "Choose an option:\n"
+		print "Main Menu:\n"
 		count = 1
 		for x in self.mainMenuItems:
 			print str(count) + ". " + x
@@ -72,85 +89,83 @@ class CashTracker(object):
 		
 		print
 		if choice == 1:
-			self.newTransaction()
+			self.promptTransaction()
 			return 1
 		elif choice == 2:
-			self.promptTransaction()
+			self.showItems()
 			return 2
 		elif choice == 3:
-			self.showTransactions()
-			return 3
-		elif choice == 4:
 			self.endSession()
-			return 4
+			return 0
 			
-	def openFile(self):
-		if(self.fileIsOpen == False):
-			self.file = file(self.startTime+'.csv', 'a')
-			line = "Time Sold ,Num Sold,Item,Price,Subtotal" 
-			print >> self.file, line
-			self.fileIsOpen = True
-	
 	def promptTransaction(self):
-		num = 0
-		choice = ""
+		self.clear()
 		index = -1
-		if len(self.transactionTypes) < 1:
-			print "No Items in list."
-			self.newTransaction()
-		else:
-			print "Choose an item:"
-			count = 1
-			dict = {}
-			for x in self.transactionTypes:
-				print str(count) + ". " + x
-				dict[str(count)] = x
-				count += 1
+		while(index != 0):
+			index = -1
+			num = 0
+			choice = ""
+			if len(self.itemNames) < 1:
+				print "No Items in list."
+				self.newTransaction()
+			else:
+				print "Choose an item:"
+				count = 1
+				dict = {}
+				for x in self.itemNames:
+					print str(count) + ". " + x
+					dict[str(count)] = x
+					count += 1
+				print "\n0. Exit Sales"
+				while index not in range(0, len(self.itemNames) + 1):
+					index = input("\n> ")
+				if index == 0:
+					self.clear()
+					break
+			
+				choice = dict[str(index)]
+				while num < 1:
+					num = input("How many " + choice + "(s) are being sold: ")
 
-			while index not in range(0, len(self.transactionTypes) + 1):
-				index = input("\n> ")
+				if choice in self.transactionTypes and num > 0:
+					self.showQuote(choice, num, self.transactionTypes[choice])
+			print
 
-	
-			choice = dict[str(index)]
-			num = input("How many " + choice + "(s) are being sold: ")
-
-			if choice in self.transactionTypes and num > 0:
-				self.showQuote(choice, num, self.transactionTypes[choice])
-		print
-
-	def showQuote(self, name, num, price):
+	def showQuote(self, item, num, price):
 		price = float(price)
 		num = int(num)
 		subtotal = num*price
 		#To Console
-		print self.getDateTime(), str(num), name + "(s) at",
+		self.clear()
+		print self.getDateTime(), str(num), item + "(s) at",
 		print ('$%.2f' % price),
 		print '=',
 		print ('$%.2f' % subtotal)
 		#To CSV
-		line = self.getDateTime() + "," + str(num) + "," + name + "," + '$%.2f' % price + "," + '$%.2f' % subtotal
+		line = self.getDateTime() + "," + str(num) + "," + item + "," + '$%.2f' % price + "," + '$%.2f' % subtotal
 		if(self.fileIsOpen == False):
 			self.openFile()
 		print >> self.file, line
 		self.totalCash += subtotal
 		
 	def newTransaction(self):
-		name = ""
-		while name == "":
-			name = raw_input("Enter the name of your new item: ")
+		item = ""
+		while item == "":
+			item = raw_input("Enter the name of your new item: ")
 		price = -1.0
 		while price < 0 :
 			price = raw_input("Enter the price of your item: ")
 		
 		if price[0] in str(range(0,9)):
-			self.transactionTypes[name] = price
-			self.sortDict()
+			self.transactionTypes[item] = price
+			#self.sortDict()
 		else:
 			print "Invalid Price."
 		print
 	
-	def showTransactions(self):
-		for x in self.transactionTypes:
+	def showItems(self):
+		self.clear()
+		for x in self.itemNames:
 			if len(x) < 7: 
 				print x+":\t\t",
 			else:
@@ -159,6 +174,7 @@ class CashTracker(object):
 		print
 	
 	def endSession(self):
+		self.clear()
 		print "Start Time: " + self.startTime + "\nEnd Time:   " + self.getDateTime() + "\n"
 		print "TOTAL: " + str('${:,.2f}'.format(self.totalCash)) + "\n"
 		#To CSV
@@ -175,8 +191,9 @@ class CashTracker(object):
 		
 #--------------------------------------------------------------------------------------------------
 
-system('cls')
+
 cash = CashTracker()
+cash.clear()
 retVal = -1
-while retVal != 4:
+while retVal != 0:
 	retVal = cash.mainMenu()
