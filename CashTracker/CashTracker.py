@@ -1,23 +1,63 @@
 #BLAKE BORDOVSKY
-from os import system
+from os import system, path
 from time import strftime
 from sys import stdout
+from collections import OrderedDict
 
 class CashTracker(object):
 
 	def __init__(self):		
 		self.startTime = strftime("%Y-%m-%d_%H-%M-%S")
-		self.orig_stdout = stdout
-		self.file = file(self.startTime+'.csv', 'a')
-		self.stdout = file
-		self.transactionTypes = {'Glowstick':'2', 'Ticket':'10'}
 		self.mainMenuItems = ['Add new item', 'Sell items', 'Show items',  'Exit']
+		self.transactionTypes = {}
 		self.totalCash = 0.00
-		line = "Time Sold ,Num Sold,Item,Price,Subtotal" 
-		print >> self.file, line
-
+		self.fileIsOpen = False
+		self.stdout = file
+		if path.isfile("CashTrackerInput.csv"):
+			for item in self.file_split(open("CashTrackerInput.csv")):
+				pass
+			self.sortDict()
 	def getDateTime(self):
 		return strftime("%Y-%m-%d_%H-%M-%S")
+		
+	def sortDict(self):
+		self.transactionTypes = OrderedDict(sorted(self.transactionTypes.items(), key=lambda t: t[0]))
+	def file_split(self, f, delim=',', bufsize=1024):
+		prev = ''
+		item = ''
+		x = ''
+		front = ''
+		back = ''
+		switch = False
+		while True:
+			s = f.readline(bufsize)
+			if not s:
+				break
+			split = s.split(delim)
+			if len(split) > 0:
+				item = split[0]
+				x = split[1]
+				both = x.split('\n')
+				x = both[0]
+				self.transactionTypes[item] = x
+				if switch == True:
+					both = x.split('\n')
+					front = both[0]
+					if len(both) > 1:
+						back = both[1]
+						x = front
+						self.transactionTypes[x] = back
+					yield x
+				else:
+					item = x
+					switch = True
+									
+			else:
+				prev += s
+				
+		if prev:
+			self.transactionTypes[prev] = item
+			yield prev
 	
 	def mainMenu(self):
 		print "Choose an option:\n"
@@ -44,12 +84,19 @@ class CashTracker(object):
 			self.endSession()
 			return 4
 			
+	def openFile(self):
+		if(self.fileIsOpen == False):
+			self.file = file(self.startTime+'.csv', 'a')
+			line = "Time Sold ,Num Sold,Item,Price,Subtotal" 
+			print >> self.file, line
+			self.fileIsOpen = True
 	
 	def promptTransaction(self):
 		num = 0
 		choice = ""
 		index = -1
 		if len(self.transactionTypes) < 1:
+			print "No Items in list."
 			self.newTransaction()
 		else:
 			print "Choose an item:"
@@ -66,6 +113,7 @@ class CashTracker(object):
 	
 			choice = dict[str(index)]
 			num = input("How many " + choice + "(s) are being sold: ")
+
 			if choice in self.transactionTypes and num > 0:
 				self.showQuote(choice, num, self.transactionTypes[choice])
 		print
@@ -81,35 +129,49 @@ class CashTracker(object):
 		print ('$%.2f' % subtotal)
 		#To CSV
 		line = self.getDateTime() + "," + str(num) + "," + name + "," + '$%.2f' % price + "," + '$%.2f' % subtotal
+		if(self.fileIsOpen == False):
+			self.openFile()
 		print >> self.file, line
 		self.totalCash += subtotal
 		
 	def newTransaction(self):
-		name = raw_input("Enter the name of your new item: ")
-		price = -1
-		while price < 0:
-			price = input("Enter the price of your item: ")
-		self.transactionTypes[name] = price
+		name = ""
+		while name == "":
+			name = raw_input("Enter the name of your new item: ")
+		price = -1.0
+		while price < 0 :
+			price = raw_input("Enter the price of your item: ")
+		
+		if price[0] in str(range(0,9)):
+			self.transactionTypes[name] = price
+			self.sortDict()
+		else:
+			print "Invalid Price."
 		print
 	
 	def showTransactions(self):
-		num = 0
 		for x in self.transactionTypes:
-			print x + ": " + str('${:,.2f}'.format(int(self.transactionTypes[x])))
-			num += 1
+			if len(x) < 7: 
+				print x+":\t\t",
+			else:
+				print x+":\t",
+			print '${:,.2f}'.format(float(self.transactionTypes[x]))
 		print
 	
 	def endSession(self):
 		print "Start Time: " + self.startTime + "\nEnd Time:   " + self.getDateTime() + "\n"
 		print "TOTAL: " + str('${:,.2f}'.format(self.totalCash)) + "\n"
 		#To CSV
-		print >> self.file, ",,,,TOTAL: " + str('${:.2f}'.format(self.totalCash)) + "\n"
-		print >> self.file, "Start Time: "
-		print >> self.file, self.startTime
-		print >> self.file, "End Time:"
-		print >> self.file, self.getDateTime()
-		self.file.close()
-		
+		if(self.fileIsOpen == True):
+			print >> self.file, ",,,,TOTAL: " + str('${:.2f}'.format(self.totalCash)) + "\n"
+			print >> self.file, "Start Time: "
+			print >> self.file, self.startTime
+			print >> self.file, "End Time:"
+			print >> self.file, self.getDateTime()
+			self.file.close()
+			print "File:", self.startTime+'.csv', "created."
+		else:
+			print "No file created."
 		
 #--------------------------------------------------------------------------------------------------
 
