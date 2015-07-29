@@ -4,8 +4,8 @@ from os import system
 class GuessKey(object):
 	def __init__(self):
 		self.key = []
-		self.keyLength = 6
-		self.MAX = 10
+		self.keyLength = 4
+		self.MAX = 4
 		self.genKey()
 		self.guesses = 0
 	def genKey(self):
